@@ -48,7 +48,7 @@
         another: './src/another-module.js'
     },     //здесь находится наш входящий файл
     output: {
-        filename: '[name].bundle.js',     //здесь исходящий после компиляции - его "исходное_имя+bundle.js"
+        filename: '[name].[contenthash].bundle.js',     //здесь исходящий после компиляции - его "исходное_имя+хеш_сумма+bundle.js"
         path: path.resolve(__dirname, 'dist'), // папка или дирректория
     },
     };
@@ -74,6 +74,148 @@
         chunks: 'all',
         },
     },
+
+ВАЖНО =================== можно использовать динамический импорт подробнее на сайте ((любоеИмя.js))
+https://webpack.js.org/guides/code-splitting/
+
+ВАЖНО ==================== Extracting Boilerplate
+опция вырезает только используемые куски кода в отличии от предидущей опции ((runtime.[hash].js))
++   optimization: {
++     runtimeChunk: 'single',
++   },
+
+ВАЖНО ==================== Extracting Boilerplate для вендоров ((vendors.[hash].js))
+опция вырезает только используемые куски кода для вендоров
++   optimization: {
++     splitChunks: {
++       cacheGroups: {
++         vendor: {
++           test: /[\\/]node_modules[\\/]/,
++           name: 'vendors',
++           chunks: 'all',
++         },
++       },
++     },
++   },
+
+ВАЖНО ==================== удаляем изминение хеш суммы вендоров от изминения index.js
+    optimization: {
++     moduleIds: 'hashed',
+    }
+
+
+5) Prefetching или ленивая загрузка (для модулей которые должны быть загружены но не использованы сразу и кешируутся)
+- import(/* webpackPrefetch: true */ 'loginModal|любое_имя.js') - загрузится лениво и кешируется
+-- в index.js отобразится как <link rel="preferch" href="login-modal.js|любое_имя.js">
+
+- import(/* webpackPreload: true */ 'loginModal|любое_имя.js'); - загрузится самым первым
+
+
+6) по желанию bundle Analasis для проверок бандла
+https://webpack.js.org/guides/code-splitting/
+
+
+7) CleanWebpackPlugin - очищает директорию ./dist "npm i --save-dev clean-webpack-plugin"
+   HtmlWebpackPlugin - создает файл html в ./dist "npm i --save-dev html-webpack-plugin"
+           
+           
+const HtmlWebpackPlugin  = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+    plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+        title: "Оглавление сайта",
+        другие_свойства: "описание характеристик",
+    })
+    ]
+
+===================== ВАЖНО узнать больше=========== блокирует на локалхосте все стили и тд
+8) добавляем CSP (защищает от осполнения скрипта извне) = 'content': 'default-src \'self\'
+new HtmlWebpackPlugin({
+    title: 'Hello',
+    "meta": {
+       'Content-Security-Policy': {'http-equiv': 'Content-Security-Policy', 'content': 'default-src \'self\''}
+    },
+}),
+
+
+
+9) three shaking||sideEffects или отрубание не исполняемого кода
++ mode: 'development',
++ optimization: {
++   usedExports: true, // добавляет возможность помечать скрипт пользователя в експорте
+                       // он отображается как    /* unused harmony export square */
+                                                 /* harmony export (immutable) */
+                       // и остается так как компилятор думает что там есть = side efect
+                       // чтобы этого избежать смотри ниже
++ },
+
+package.json
++ {
++   "name": "your-project",
++   "sideEffects": false  // откулючает распознавание сайд ефекта
+//////////////////////////////////////////////////////////////////////////////
+                          // если все-таки есть сайд ефекты то помечаем их в массиве
++   "name": "your-project",
++ "sideEffects": [
++   "**/*.css",
++   "**/*.scss",
++   "./esnext/index.js",
++   "./esnext/configure.js"
++ ],                    
+
+/////////////////////////////////////////////////////////////////////////////
+                          // пометить функцию без сайд ефектов можно коментарием
+/*#__PURE__*/ double(55);
+
+
+ВАЖНО ======================= сайд ефекты обрезаются только в режиме 
++ mode: 'production',
+
+
+
+10) webpackMerge = обьединяет наши конфиги в один
+-npm install --save-dev webpack-merge
+-добавляем файлы 
+--webpack.common.js // как главный файл импор везде
+--webpack.dev.js // файл режима buidl(с коментариями и деревьями) и режима start (тоже самое только с сервером)
+--webpack.prod.js // режим продакшена prod(минификация, обрезание деревьев)
+
+-асеты в package.json
+    "build": "webpack --config webpack.dev.js",
+    "start": "webpack-dev-server --open --config webpack.dev.js",
+    "prod": "webpack --config webpack.prod.js"
+
+-if (process.env.NODE_ENV !== 'production') {
+  console.log('Looks like we are in development mode!');
+} // проверка не находимся ли мы в режиме разработки
+
+
+11) полифилы для отображения кода в старых браузерах
+npm install --save babel-polyfill
+npm install --save whatwg-fetch
+
+добавляем в загрузку самым первым 
+webpack.common.js
++       entry: {
++       polyfills: './src/polyfills.js',
++ }
+создаем для них отдельный скрипта
+polyfills.js
++    import 'babel-polyfill';
++    import 'whatwg-fetch';
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 далее загружаем и настраиваем пакеты в зависимости от потребностей
