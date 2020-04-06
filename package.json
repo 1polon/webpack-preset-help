@@ -11,7 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
-    "prod": "webpack --config webpack.prod.js"
+    "prod": "webpack --config webpack.prod.js",
+    "oserver": "http-server dist"
   },
   "repository": {
     "type": "git",
@@ -26,13 +27,16 @@
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
+    "html-minifier-terser": "^5.0.5",
     "html-webpack-plugin": "^4.0.4",
+    "http-server": "^0.12.1",
     "lodash": "^4.17.15",
     "style-loader": "^1.1.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "workbox-webpack-plugin": "^5.1.2"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",

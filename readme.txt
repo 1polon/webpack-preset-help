@@ -2,6 +2,19 @@
  https://webpack.js.org/guides/
  
 
+проблемы:  
+1) файл не минифицируется после HtmlWebpackPlugin в продакшене
+2) work-box во время выполнения на сервере локально сильно увеличивается в размере
+
+
+
+
+
+
+
+
+
+
 0) git init = создаст наш гит файл, в него вводим данные для репозитория
 - далее создаем ветку на гитхабе копируем из нее ссылку
 -- эту ссылку вставляем в наш конфиг в папке .git там где url (даст возможность делать push)
@@ -125,6 +138,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
         title: "Оглавление сайта",
+        template: "./src/index.html" // исходный файл брать оттуда
         другие_свойства: "описание характеристик",
     })
     ]
@@ -195,15 +209,84 @@ package.json
 npm install --save babel-polyfill
 npm install --save whatwg-fetch
 
-добавляем в загрузку самым первым 
+-добавляем в загрузку самым первым 
 webpack.common.js
 +       entry: {
 +       polyfills: './src/polyfills.js',
 + }
-создаем для них отдельный скрипта
+-создаем для них отдельный скрипта
 polyfills.js
 +    import 'babel-polyfill';
 +    import 'whatwg-fetch';
+
+-создаем в директории ./dist => index.html
+-добавляем в index.html в директории ./dist
++     <title>Getting Started</title>
++     <script>
++       const modernBrowser = (
++         'fetch' in window &&
++         'assign' in Object
++       );
++
++       if ( !modernBrowser ) {
++         const scriptElement = document.createElement('script');
++
++         scriptElement.async = false;
++         scriptElement.src = '/polyfills.bundle.js';
++         document.head.appendChild(scriptElement);
++       }
++     </script>
+
+-этот скрипт для теста ========= фетча
+fetch('https://jsonplaceholder.typicode.com/users')
++   .then(response => response.json())
++   .then(json => {
++     console.log('We retrieved some data! AND we\'re confident it will work on a variety of browser distributions.')
++     console.log(json)
++   })
++   .catch(error => console.error('Something went wrong when fetching this data: ', error))
+
+
+12) онлайн сервер (симуляция настоящего)
+npm install http-server --save-dev
+
+- добавляем асет
+"oserver": "http-server dist"
+
+
+13) рабочая коробка или приложение которое работает без интернета
+npm install workbox-webpack-plugin --save-dev
+
+===============================ВАЖНО====================================
+в проде он не минифицирован нужно узнать как это сделать
+
+-webpack.common.js добавляем настройки
+const WorkboxPlugin = require('workbox-webpack-plugin');
++     new WorkboxPlugin.GenerateSW({
++       // these options encourage the ServiceWorkers to get in there fast
++       // and not allow any straggling "old" SWs to hang around
++       clientsClaim: true,
++       skipWaiting: true,
++     }),
+
+-проверка работы index.js смотреть в консоли
++ if ('serviceWorker' in navigator) {
++   window.addEventListener('load', () => {
++     navigator.serviceWorker.register('/service-worker.js').then(registration => {
++       console.log('SW registered: ', registration);
++     }).catch(registrationError => {
++       console.log('SW registration failed: ', registrationError);
++     });
++   });
++ }
+
+
+
+13) public path ============= ВАЖНО ============== узнать больше
+
+
+
+
 
 
 
@@ -246,3 +329,20 @@ polyfills.js
 
 - добавляем импорт в index.js
     import './style.css';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
