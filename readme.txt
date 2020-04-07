@@ -8,8 +8,10 @@
 
 
 
-
-
+Содержание:                                                      
+    0) инициализация git                                           // git init = создаст наш гит файл, в него вводим данные для репозитория 
+    1) инициализация npm                                           // npm init = coздаст файл package.json                                 
+    2) 
 
 
 
@@ -37,7 +39,7 @@
 - добавляем настройку 
     "private": true (нужна для запрета случайных утечек кода)
 
-- добавляем команды в (пример "npm run build")
+- добавляем команды(ассеты) в (пример "npm run build")
     "scripst":{
         "test": "echo \"Error: no test specified\" && exit 1", = базовая тестовая команда
         "build": "webpack --config webpack.config.js"
@@ -70,7 +72,7 @@
     "mode": production = продакшен (код минифицируется и готовится к получению пользователем)
     "mode": development = создание (код с коментариями и др.)
 
-3) npm i --save-dev webpack-dev-server = устанавливаем сервер (локальный без кеша и др.)
+3) npm i --save-dev webpack-dev-server = устанавливаем сервер (оффлайн без кеша и др.)
 - webpack.config.js 
     devServer: {
         contentBase: './dist'
@@ -205,6 +207,7 @@ package.json
 } // проверка не находимся ли мы в режиме разработки
 
 
+
 11) полифилы для отображения кода в старых браузерах
 npm install --save babel-polyfill
 npm install --save whatwg-fetch
@@ -247,11 +250,13 @@ fetch('https://jsonplaceholder.typicode.com/users')
 +   .catch(error => console.error('Something went wrong when fetching this data: ', error))
 
 
+
 12) онлайн сервер (симуляция настоящего)
 npm install http-server --save-dev
 
 - добавляем асет
 "oserver": "http-server dist"
+
 
 
 13) рабочая коробка или приложение которое работает без интернета
