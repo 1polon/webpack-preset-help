@@ -16,8 +16,8 @@
 3. [Установка webpack](#3_webp_i)
 4. [Установка локального сервера](#4_ls)
 5. [SplitChunksPlugin - вырезает куски кода в один файл](#5_split)
-6. [Prefetching - ленивая загрузка файлов]()
-7. []()
+6. [Prefetching - ленивая загрузка файлов](#6_pref)
+7. [Плагин проверки бандла bundle Analasis](#7_ananas)
 8. []()
 9. []()
 10. []() 
@@ -140,44 +140,98 @@
 - `moduleIds: 'hashed'` - удаляем изминение хеш суммы вендоров от изминений в файле `index.js`
 - `runtimeChunk: 'single'` - выделяем активные куски кода в отдельный файл
 
-6) Prefetching или ленивая загрузка (для модулей которые должны быть загружены но не использованы сразу и кешируутся)
-- import(/* webpackPrefetch: true */ 'loginModal|любое_имя.js') - загрузится лениво и кешируется
--- в index.js отобразится как <link rel="preferch" href="login-modal.js|любое_имя.js">
+## <a name="6_pref">6. Prefetching или ленивая загрузка (для модулей которые должны быть загружены, но не использованы сразу)
 
-- import(/* webpackPreload: true */ 'loginModal|любое_имя.js'); - загрузится самым первым
+- когда добавляем скрипт например в `index.js` с помощью импорта, прописываем коментарий
 
+```js
+ import(/* webpackPrefetch: true */ 'любое_имя.js')
+```
 
-7) по желанию bundle Analasis для проверок бандла
+- загрузится лениво и кешируется. В index.html отобразится как 
+```html
+<link rel="preferch" href="любое_имя.js">
+```
+
+- с другой стороны данный коментарий загрузит самым первым
+
+```js
+import(/* webpackPreload: true */ 'любое_имя.js');`
+```
+
+- отобразится как
+
+```html
+<link rel="preload" href="любое_имя.js">
+```
+
+### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin.
+
+## 7) по желанию bundle Analasis для проверок бандла
+подробнее:
 https://webpack.js.org/guides/code-splitting/
 
 
-8) CleanWebpackPlugin - очищает директорию ./dist "npm i --save-dev clean-webpack-plugin"
-   HtmlWebpackPlugin - создает файл html в ./dist "npm i --save-dev html-webpack-plugin"
-           
-           
-const HtmlWebpackPlugin  = require('html-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-    plugins: [
-    new CleanWebpackPlugin(),
-    new HtmlWebpackPlugin({
-        title: "Оглавление сайта",
-        template: "./src/index.html" // исходный файл брать оттуда
-        другие_свойства: "описание характеристик",
-    })
-    ]
+## <a name="8_clean">8. Очистка `./dist` и создание html 
 
-===================== ВАЖНО узнать больше=========== блокирует на локалхосте все стили и тд
-9) добавляем CSP (защищает от осполнения скрипта извне) = 'content': 'default-src \'self\'
+- &#9646;`npm i --save-dev clean-webpack-plugin` - CleanWebpackPlugin - очищает директорию `./dist`
+
+- &#9646;`npm i --save-dev html-webpack-plugin` -  HtmlWebpackPlugin - создает файл и вносит в него бандлы(скрипты) и другие зависимости html в `./dist`
+
+```js
+  const path = require('path');
++ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
++ const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    mode: 'development',
+    entry: {
+        polyfills: './src/polyfills.js',
+        index: './src/index.js',
+    },
++    plugins: [
++    new CleanWebpackPlugin(),
++    new HtmlWebpackPlugin({
++        title: "Оглавление сайта",
++        template: "./src/index.html"
++    })
+    output: {
+        filename: '[name].[contenthash].js',
+        path: path.resolve(__dirname, 'dist'),
+    },
+    optimization: {
+        moduleIds: 'hashed',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
+        },
+    },
+```
+
+## <a name="9_csp">9. CSP - команда для дополнительной защиты от XSS</a>
+
+- блокирует всё что не прописано в `index.html`
+- добавляем CSP
+
+```js
 new HtmlWebpackPlugin({
     title: 'Hello',
     "meta": {
        'Content-Security-Policy': {'http-equiv': 'Content-Security-Policy', 'content': 'default-src \'self\''}
     },
 }),
+```
 
 
+## <a name="10_three">10. three shaking и sideEffects - отрубание не исполняемого кода (пока что не пробовал, чуть позже займусь)
 
-10) three shaking||sideEffects или отрубание не исполняемого кода
+```js
 + mode: 'development',
 + optimization: {
 +   usedExports: true, // добавляет возможность помечать скрипт пользователя в експорте
@@ -186,80 +240,79 @@ new HtmlWebpackPlugin({
                        // и остается так как компилятор думает что там есть = side efect
                        // чтобы этого избежать смотри ниже
 + },
+```
 
-package.json
+- `package.json`
+```js
 + {
 +   "name": "your-project",
-+   "sideEffects": false  // откулючает распознавание сайд ефекта
-//////////////////////////////////////////////////////////////////////////////
-                          // если все-таки есть сайд ефекты то помечаем их в массиве
-+   "name": "your-project",
-+ "sideEffects": [
-+   "**/*.css",
++   "sideEffects": false  // ОПАСНО откулючает распознавание сайд ефекта 
+                          //потом сложно находить ошибки
+//////////// можно сделать иначе //////////////////
++   "name": "your-project", 
++ "sideEffects": [ // если все-таки есть сайд ефекты то 
++   "**/*.css",    // помечаем их в массиве для сайд ефектов
 +   "**/*.scss",
-+   "./esnext/index.js",
-+   "./esnext/configure.js"
-+ ],                    
++ ],
+```
+> пометить функцию без сайд ефектов можно коментарием
+`/*#__PURE__*/ double(55)`;
 
-/////////////////////////////////////////////////////////////////////////////
-                          // пометить функцию без сайд ефектов можно коментарием
-/*#__PURE__*/ double(55);
+### Важно: код обрезаются только в режиме `mode: 'production'`
 
+## <a name="11_merge">11. WebpackMerge - обьединяет наши конфиги в один</a>
+- &#9646;`npm install --save-dev webpack-merge`
+- добавляем файлы 
+  - `webpack.common.js` - как главный файл импор везде
+  - `webpack.dev.js` - файл режима buidl(с коментариями и деревьями) и режима start (тоже самое только с сервером)
+  - `webpack.prod.js` - режим продакшена prod(минификация, обрезание деревьев)
 
-ВАЖНО ======================= сайд ефекты обрезаются только в режиме 
-+ mode: 'production',
+- асеты в `package.json`
 
-
-
-11) webpackMerge = обьединяет наши конфиги в один
--npm install --save-dev webpack-merge
--добавляем файлы 
---webpack.common.js // как главный файл импор везде
---webpack.dev.js // файл режима buidl(с коментариями и деревьями) и режима start (тоже самое только с сервером)
---webpack.prod.js // режим продакшена prod(минификация, обрезание деревьев)
-
--асеты в package.json
+```js
     "build": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "prod": "webpack --config webpack.prod.js"
+```
 
--if (process.env.NODE_ENV !== 'production') {
+- Добавим проверку режима разработки в `index.js`
+
+```js
+if (process.env.NODE_ENV !== 'production') {
   console.log('Looks like we are in development mode!');
 } // проверка не находимся ли мы в режиме разработки
+```
 
-
-
-12) полифилы для отображения кода в старых браузерах
-npm install --save babel-polyfill
-npm install --save whatwg-fetch
-
+## <a name="12_pol">12. Полифилы для отображения кода в старых браузерах ( глава нуждается в доработке )</a>
+- `npm install --save babel-polyfill` - установка полифила
+- npm install --save whatwg-fetch - без понятия что он делает
 -добавляем в загрузку самым первым 
 webpack.common.js
-+       entry: {
-+       polyfills: './src/polyfills.js',
-+ }
+entry:{
+polyfills: './src/polyfills.js',
+}
 -создаем для них отдельный скрипта
 polyfills.js
-+    import 'babel-polyfill';
-+    import 'whatwg-fetch';
+import 'babel-polyfill';
+import 'whatwg-fetch';
 
 -создаем в директории ./dist => index.html
 -добавляем в index.html в директории ./dist
-+     <title>Getting Started</title>
-+     <script>
-+       const modernBrowser = (
-+         'fetch' in window &&
-+         'assign' in Object
-+       );
-+
-+       if ( !modernBrowser ) {
-+         const scriptElement = document.createElement('script');
-+
-+         scriptElement.async = false;
-+         scriptElement.src = '/polyfills.bundle.js';
-+         document.head.appendChild(scriptElement);
-+       }
-+     </script>
+<title>Getting Started</title>
+<script>
+ const modernBrowser = (
+   'fetch' in window &&
+   'assign' in Object
+ );
+
+ if ( !modernBrowser ) {
+   const scriptElement = document.createElement('script');
+
+   scriptElement.async = false;
+   scriptElement.src = '/polyfills.bundle.js';
+   document.head.appendChild(scriptElement);
+ }
+</script>
 
 -этот скрипт для теста ========= фетча
 fetch('https://jsonplaceholder.typicode.com/users')
@@ -358,23 +411,3 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 
 - добавляем импорт в index.js
     import './style.css';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#   - t e s t 
- 
- 
