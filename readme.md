@@ -1,153 +1,157 @@
 # Привет, это коротенькая инструкция v0.0.2 по созданию пресета webpack
 
+Пономаренко Виктор
 ## О главном
 
 - материалы взяты с официального англ. яз. сайта webpack
 [официальная страничка гайдов webpack](https://webpack.js.org/guides/)
-
-- Необходимы базовые знания консоли, установленый гит.
+- Необходимы базовые знания консоли, **установленый гит, node.js, npm**
 - Команды для консоли будут отображены знаком &#9646;
 - Код который будет добавлятся по мере наполнения конфига, отображен знаком **+**
-
-
 
 ## Содержание
 
 1. [Инициализация git](#1_git_init)
-2. [Инициализация npm](#1_npm_init)
-3. []()
-4. []()
-5. []()
-6. []()
+2. [Инициализация npm](#2_npm_init)
+3. [Установка webpack](#3_webp_i)
+4. [Установка локального сервера](#4_ls)
+5. [SplitChunksPlugin - вырезает куски кода в один файл](#5_split)
+6. [Prefetching - ленивая загрузка файлов]()
 7. []()
 8. []()
 9. []()
 10. []() 
-\u00B2;
-&#9646;
-&#767;
-&#2400;
-&#00B2;
-## <a name="1_git_init">![link](link4.png)</a> 1. Инициализация git</a>
 
-- `git init` создаст наш гит файл, в него вводим данные для репозитория
+## <a name="1_git_init"> 1. Инициализация git</a>
 
-- создаем ветку на гитхабе
-- копируем из нее ссылку и вставляем в файл `config` в папке `.git`
-- создаем гит игнор
+- создаем папку, вся магия будет происходить там
+
+- создаем ветку на гитхабе 
+
+- создаем гит локально
+  - &#9646;`git init` - создаст наш гит файл
+  - &#9646;`git add .` - добавим все созданые файлы
+  - &#9646;`git commit -m "first commit"` - сделаем первый коммит
+  - &#9646;`git remote add origin https://github.com/[название репозитория].git` - добавим адрес репозитория
+  - &#9646;`git push -u origin master` - отправим данные в тридевятое
+
+- &#9646;`type nul > .gitignore` добавляем гит игнор
 
 ### Команды для гит :
-- `git status` - показывает статус всех файлов которые мы изменили
-- `git . | git add [file.format]` - добавляет все файлы | добавляет определенный файл
-- `git commit -m "message"` - делает коммит изминений те. добавленых файлов
-- `git log` - показывает все коммиты
-- `git branch` - показывает ветки, если добавить что-то то создает ветку
-- `git checkout [название ветки]` - переключаем ветку
-- `git checkout [hash]` - сбрасывет изминения до указаного хеша
-- `git reset` - сбрасывает изминения из самого коммита
-- `git -h` - помощь
-- `git tag [имя_тега]` - добавляет тег к коммиту
+- &#9646;`git status` - показывает статус всех файлов которые мы изменили
+- &#9646;`git . | git add [file.format]` - добавляет все файлы | добавляет определенный файл
+- &#9646;`git commit -m "message"` - делает коммит изминений те. добавленых файлов
+- &#9646;`git log` - показывает все коммиты
+- &#9646;`git branch` - показывает ветки, если добавить что-то то создает ветку
+- &#9646;`git checkout [название ветки]` - переключаем ветку
+- &#9646;`git checkout [hash]` - сбрасывет изминения до указаного хеша
+- &#9646;`git reset` - сбрасывает изминения из самого коммита HEAD
+- &#9646;`git -h` - помощь
+- &#9646;`git tag [имя_тега]` - добавляет тег к коммиту
 
-## <a name="1_git_init">![link](link4.png)</a> 2. Инициализация npm</a>
+## <a name="2_npm_init">2. Инициализация npm</a>
 
-- `npm init` - coздаст файл `package.json` с нашими настройками
+- &#9646;`npm init` - coздаст файл `package.json` с нашими настройками
 - в нем указываем название, описание, репозиторий(устанавливается автоматически т.к. мы создали ранее)
-- удаляем main.js 
-- добавляем настройку 
-    "private": true (нужна для запрета случайных утечек кода)
+- удаляем `"main": main.js` в файле `package.json`
+  `
+- добавляем настройку `"private": true` в файл `package.json` (нужна для запрета случайных утечек кода)
 
-- добавляем команды(ассеты) в (пример "npm run build")
-    "scripst":{
-        "test": "echo \"Error: no test specified\" && exit 1", = базовая тестовая команда
-        "build": "webpack --config webpack.config.js"
-        = кастомная команда добавляет возможность вводить "npm run build"
-        = с набором конфигурации webpack.config.js (ee нужно создавать самостоятельно)
-        "start": "любая команда доступная через консоль"
-    }
+- добавляем команды(асеты) в файл `package.json`. Это позволяет использовать короткие команды в консоли например  &#9646;`npm run [любой асет]` в нашем случае для запуска webpack нужно ввести &#9646;`npm run build`
+  
+  ```json
+  "scripst":{
+          "test": "echo \"Error: no test specified\" && exit 1",
+  +       "build": "webpack --config webpack.config.js"
+  }
+  ```
+## <a name="3_webp_i">3. Устанавливаем webpack</a>
 
-правила установки пакетов:
-    --save-dev = появится в devDependencies и так далее
-    - подробнее https://docs.npmjs.com/cli/install
+- &#9646;`npm install webpack webpack-cli --save-dev` - добавляем пакеты webpack
+- создаем папку `src`
 
-2) npm install|i webpack webpack-cli --save-dev = добавляем пакеты для разработки  
-= создают package-lock.json - файл обслуживания
-- создаем webpack.config.js = нужен для наших настроек
+> `--save-dev` при в ключении этого режима зависимости появится в devDependencies файла `package.json` и так далее. Подробнее https://docs.npmjs.com/cli/install
+
+- создаем `webpack.config.js` - нужен для наших настроек, на него будет ссылатся команда &#9646;`npm run build` в него вставляем:
+
+     ```js
     const path = require('path');
-    // хз что это
+
     module.exports = {
+    mode: 'development',
     entry: {
         index:  './src/index.js',
         another: './src/another-module.js'
-    },     //здесь находится наш входящий файл
+    },
     output: {
-        filename: '[name].[contenthash].bundle.js',     //здесь исходящий после компиляции - его "исходное_имя+хеш_сумма+bundle.js"
-        path: path.resolve(__dirname, 'dist'), // папка или дирректория
+        filename: '[name].[contenthash].bundle.js',    
+        path: path.resolve(__dirname, 'dist'), 
     },
     };
+    ```
 
-- вводим режим разработки webpack.config.js 
-    "mode": production = продакшен (код минифицируется и готовится к получению пользователем)
-    "mode": development = создание (код с коментариями и др.)
+### Расшифровка
 
-3) npm i --save-dev webpack-dev-server = устанавливаем сервер (оффлайн без кеша и др.)
-- webpack.config.js 
+- `entry:` здесь находится наш входящий файл или файлы
+- `output:` здесь исходящий после компиляции - его "исходное_имя+хеш_сумма+bundle.js"
+- `path: path.resolve(__dirname, 'dist')` папка или дирректория будет создана автоматически
+
+> по умолчанию установлен режим разработки `mode: 'development'` - создание (с sours-карты, коментарии и др.)
+. В файле webpack.config.js можно заменить - `mode: 'production'` - продакшен (код минифицируется и готовится к получению пользователем)
+
+## <a name="4_ls">4. установка локального сервера</a>
+
+- &#9646;`npm i --save-dev webpack-dev-server` - локальный сервер (оффлайн без кеша и др.)
+- в файле `webpack.config.js` добавляем, это папка из которой будут братся данные для сервера
+
+```js
     devServer: {
         contentBase: './dist'
     }
-- package.json добавляем асет
-    "start": "webpack-dev-server --open"
-теперь доступна команда "npm run start" для запуска локального сервера
+```
 
-4) добавляем SplitChunksPlugin он вырезает одинаковые куски кода в один файл если импорт есть в нескольких файлах js
-- webpack.config.js
+- в файл `package.json` добавляем асет `"start": "webpack-dev-server --open"`
+теперь доступна команда &#9646;`npm run start` для запуска локального сервера
+
+## <a name="#5_split">5. добавляем SplitChunksPlugin из коробки. Он вырезает одинаковые куски кода
+
+- дописываем в  `webpack.config.js`
+
+```js
     optimization: {
+        moduleIds: 'hashed',
+        runtimeChunk: 'single',
         splitChunks: {
-        filename: 'любоеИмя.js'
-        chunks: 'all',
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all',
+                },
+            },
         },
     },
+```
 
-ВАЖНО =================== можно использовать динамический импорт подробнее на сайте ((любоеИмя.js))
-https://webpack.js.org/guides/code-splitting/
+> хорошая практика использовать динамический импорт для вырезания кода подробнее https://webpack.js.org/guides/code-splitting/
+> . Extracting Boilerplate опция вырезает только используемые куски кода в отличии от предидущей опции, это опасно если есть **сайд ефекты**
 
-ВАЖНО ==================== Extracting Boilerplate
-опция вырезает только используемые куски кода в отличии от предидущей опции ((runtime.[hash].js))
-+   optimization: {
-+     runtimeChunk: 'single',
-+   },
+### Расшифровка 
+- `moduleIds: 'hashed'` - удаляем изминение хеш суммы вендоров от изминений в файле `index.js`
+- `runtimeChunk: 'single'` - выделяем активные куски кода в отдельный файл
 
-ВАЖНО ==================== Extracting Boilerplate для вендоров ((vendors.[hash].js))
-опция вырезает только используемые куски кода для вендоров
-+   optimization: {
-+     splitChunks: {
-+       cacheGroups: {
-+         vendor: {
-+           test: /[\\/]node_modules[\\/]/,
-+           name: 'vendors',
-+           chunks: 'all',
-+         },
-+       },
-+     },
-+   },
-
-ВАЖНО ==================== удаляем изминение хеш суммы вендоров от изминения index.js
-    optimization: {
-+     moduleIds: 'hashed',
-    }
-
-
-5) Prefetching или ленивая загрузка (для модулей которые должны быть загружены но не использованы сразу и кешируутся)
+6) Prefetching или ленивая загрузка (для модулей которые должны быть загружены но не использованы сразу и кешируутся)
 - import(/* webpackPrefetch: true */ 'loginModal|любое_имя.js') - загрузится лениво и кешируется
 -- в index.js отобразится как <link rel="preferch" href="login-modal.js|любое_имя.js">
 
 - import(/* webpackPreload: true */ 'loginModal|любое_имя.js'); - загрузится самым первым
 
 
-6) по желанию bundle Analasis для проверок бандла
+7) по желанию bundle Analasis для проверок бандла
 https://webpack.js.org/guides/code-splitting/
 
 
-7) CleanWebpackPlugin - очищает директорию ./dist "npm i --save-dev clean-webpack-plugin"
+8) CleanWebpackPlugin - очищает директорию ./dist "npm i --save-dev clean-webpack-plugin"
    HtmlWebpackPlugin - создает файл html в ./dist "npm i --save-dev html-webpack-plugin"
            
            
@@ -163,7 +167,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
     ]
 
 ===================== ВАЖНО узнать больше=========== блокирует на локалхосте все стили и тд
-8) добавляем CSP (защищает от осполнения скрипта извне) = 'content': 'default-src \'self\'
+9) добавляем CSP (защищает от осполнения скрипта извне) = 'content': 'default-src \'self\'
 new HtmlWebpackPlugin({
     title: 'Hello',
     "meta": {
@@ -173,7 +177,7 @@ new HtmlWebpackPlugin({
 
 
 
-9) three shaking||sideEffects или отрубание не исполняемого кода
+10) three shaking||sideEffects или отрубание не исполняемого кода
 + mode: 'development',
 + optimization: {
 +   usedExports: true, // добавляет возможность помечать скрипт пользователя в експорте
@@ -207,7 +211,7 @@ package.json
 
 
 
-10) webpackMerge = обьединяет наши конфиги в один
+11) webpackMerge = обьединяет наши конфиги в один
 -npm install --save-dev webpack-merge
 -добавляем файлы 
 --webpack.common.js // как главный файл импор везде
@@ -225,7 +229,7 @@ package.json
 
 
 
-11) полифилы для отображения кода в старых браузерах
+12) полифилы для отображения кода в старых браузерах
 npm install --save babel-polyfill
 npm install --save whatwg-fetch
 
@@ -268,7 +272,7 @@ fetch('https://jsonplaceholder.typicode.com/users')
 
 
 
-12) онлайн сервер (симуляция настоящего)
+13) онлайн сервер (симуляция настоящего)
 npm install http-server --save-dev
 
 - добавляем асет
@@ -276,7 +280,7 @@ npm install http-server --save-dev
 
 
 
-13) рабочая коробка или приложение которое работает без интернета
+14) рабочая коробка или приложение которое работает без интернета
 npm install workbox-webpack-plugin --save-dev
 
 ===============================ВАЖНО====================================
@@ -304,7 +308,7 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 
 
 
-13) public path ============= ВАЖНО ============== узнать больше
+15) public path ============= ВАЖНО ============== узнать больше
 
 
 
@@ -371,3 +375,6 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 
 
 
+#   - t e s t 
+ 
+ 
