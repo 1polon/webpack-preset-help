@@ -121,7 +121,7 @@
 - в файл `package.json` добавляем асет `"start": "webpack-dev-server --open"`
 теперь доступна команда &#9646;`npm run start` для запуска локального сервера
 
-## <a name="#5_split">5. добавляем SplitChunksPlugin из коробки. Он вырезает одинаковые куски кода
+## <a name="#5_split">5. добавляем SplitChunksPlugin из коробки. Он вырезает одинаковые куски кода</a>
 
 - дописываем в  `webpack.config.js`
 
