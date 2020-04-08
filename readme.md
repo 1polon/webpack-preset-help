@@ -22,18 +22,19 @@
 7. [Плагин проверки бандла bundle Analasis](#7_ananas)
 8. [Очистка `.dist` и автоматическое создание html](#8_clean)
 9. [CSP - команда для дополнительной защиты от XSS](#9_csp)
-10. [three shaking и sideEffects - отрубание не исполняемого кода](#10_three) 
-11. [WebpackMerge - обьединяет наши конфиги в один](#11_merge) 
-12. [Workbox - для работы сайта без интернета](#12_work) 
-15. [Public path - будет добавлено в скором будующем :)](#15_pp) 
-- [Вывод](#vv) 
-- [Если кто-то разбирается](#help) 
+10. [three shaking и sideEffects - отрубание не исполняемого кода](#10_three)
+11. [WebpackMerge - обьединяет наши конфиги в один](#11_merge)
+12. [Workbox - для работы сайта без интернета](#12_work)
+13. [Public path - будет добавлено в скором будующем :)](#13_pp)
+
+- [Вывод](#vv)
+- [Если кто-то разбирается](#help)
 
 ## <a name="1_git_init"> 1. Инициализация git</a>
 
 - создаем папку, вся магия будет происходить там
 
-- создаем ветку на гитхабе 
+- создаем ветку на гитхабе
 
 - создаем гит локально
   - &#9646;`git init` - создаст наш гит файл
@@ -44,7 +45,8 @@
 
 - &#9646;`type nul > .gitignore` добавляем гит игнор
 
-### Команды для гит :
+### Команды для гит:
+
 - &#9646;`git status` - показывает статус всех файлов которые мы изменили
 - &#9646;`git . | git add [file.format]` - добавляет все файлы | добавляет определенный файл
 - &#9646;`git commit -m "message"` - делает коммит изминений те. добавленых файлов
@@ -92,8 +94,8 @@
   +       another: './src/another-module.js'
   +   },
   +   output: {
-  +       filename: '[name].[contenthash].bundle.js',    
-  +       path: path.resolve(__dirname, 'dist'), 
+  +       filename: '[name].[contenthash].bundle.js',
+  +       path: path.resolve(__dirname, 'dist'),
   +   },
   +   };
   ```
@@ -128,8 +130,8 @@
 
 ```js
     output: {
-         filename: '[name].[contenthash].bundle.js',    
-         path: path.resolve(__dirname, 'dist'), 
+         filename: '[name].[contenthash].bundle.js',
+         path: path.resolve(__dirname, 'dist'),
     },
 +   optimization: {
 +       moduleIds: 'hashed',
@@ -146,10 +148,11 @@
 +   },
 ```
 
-> хорошая практика использовать динамический импорт для вырезания кода подробнее https://webpack.js.org/guides/code-splitting/
+> хорошая практика использовать динамический импорт для вырезания кода подробнее <https://webpack.js.org/guides/code-splitting/>
 > . Extracting Boilerplate опция вырезает только используемые куски кода в отличии от предидущей опции, это опасно если есть **сайд ефекты**
 
-### Расшифровка 
+### Расшифровка
+
 - `moduleIds: 'hashed'` - удаляем изминение хеш суммы вендоров от изминений в файле `index.js`
 - `runtimeChunk: 'single'` - выделяем активные куски кода в отдельный файл
 
@@ -161,7 +164,8 @@
  import(/* webpackPrefetch: true */ 'любое_имя.js')
 ```
 
-- загрузится лениво и кешируется. В index.html отобразится как 
+- загрузится лениво и кешируется. В index.html отобразится как
+
 ```html
 <link rel="preferch" href="любое_имя.js">
 ```
@@ -178,18 +182,17 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 <link rel="preload" href="любое_имя.js">
 ```
 
-### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin.
+### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin
 
 ## <a name="7_ananas"> 7. По желанию bundle Analasis для проверок бандла</a>
 
 - подробнее: <https://webpack.js.org/guides/code-splitting/>
 
-## <a name="8_clean">8. Очистка `./dist` и создание html 
+## <a name="8_clean">8. Очистка `./dist` и создание html
 
 - &#9646;`npm i --save-dev clean-webpack-plugin` - CleanWebpackPlugin - очищает директорию `./dist`
 
 - &#9646;`npm i --save-dev html-webpack-plugin` -  HtmlWebpackPlugin - создает файл и вносит в него бандлы(скрипты) и другие зависимости html в `./dist`
-
 
 ```js
   const path = require('path');
@@ -242,7 +245,6 @@ new HtmlWebpackPlugin({
 }),
 ```
 
-
 ## <a name="10_three">10. three shaking и sideEffects - отрубание не исполняемого кода (пока что не пробовал, чуть позже займусь) - в конечный код не добавлял
 
 ```json
@@ -261,15 +263,16 @@ new HtmlWebpackPlugin({
 ```json
 + {
 +   "name": "your-project",
-+   "sideEffects": false  // ОПАСНО откулючает распознавание сайд ефекта 
++   "sideEffects": false  // ОПАСНО откулючает распознавание сайд ефекта
                           //потом сложно находить ошибки
 //////////// можно сделать иначе //////////////////
-+   "name": "your-project", 
-+ "sideEffects": [ // если все-таки есть сайд ефекты то 
++   "name": "your-project",
++ "sideEffects": [ // если все-таки есть сайд ефекты то
 +   "**/*.css",    // помечаем их в массиве для сайд ефектов
 +   "**/*.scss",
 + ],
 ```
+
 - пометить функцию без сайд ефектов можно коментарием
 `/*#__PURE__*/ double(55)`;
 
@@ -278,7 +281,7 @@ new HtmlWebpackPlugin({
 ## <a name="11_merge">11. WebpackMerge - обьединяет наши конфиги в один</a>
 
 - &#9646;`npm install --save-dev webpack-merge`
-- добавляем файлы 
+- добавляем файлы
   - `webpack.common.js` - как главный файл он експортируется в остальные
 
     ```js
@@ -410,7 +413,7 @@ plugins: [
 +   }
 ```
 
-## <a name="15_pp">15. Public path - будет добавлено в скором будующем :)</a>
+## <a name="13_pp">13. Public path - будет добавлено в скором будующем :)</a>
 
 ## <a name="vv"> Вывод:</a>
 
