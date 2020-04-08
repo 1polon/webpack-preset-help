@@ -1,6 +1,7 @@
 # Привет, это коротенькая инструкция v0.0.2 по созданию пресета webpack
 
 Пономаренко Виктор
+
 ## О главном
 
 - материалы взяты с официального англ. яз. сайта webpack
@@ -33,7 +34,7 @@
   - &#9646;`git add .` - добавим все созданые файлы
   - &#9646;`git commit -m "first commit"` - сделаем первый коммит
   - &#9646;`git remote add origin https://github.com/[название репозитория].git` - добавим адрес репозитория
-  - &#9646;`git push -u origin master` - отправим данные в тридевятое
+  - &#9646;`git push -u origin master` - отправим данные в тридевятое п.с. `-u` нужен только когда нужно запомнить ветку
 
 - &#9646;`type nul > .gitignore` добавляем гит игнор
 
@@ -57,7 +58,7 @@
   `
 - добавляем настройку `"private": true` в файл `package.json` (нужна для запрета случайных утечек кода)
 
-- добавляем команды(асеты) в файл `package.json`. Это позволяет использовать короткие команды в консоли например  &#9646;`npm run [любой асет]` в нашем случае для запуска webpack нужно ввести &#9646;`npm run build`
+- добавляем команды(**асеты**) в файл `package.json`. Это позволяет использовать короткие команды в консоли например  &#9646;`npm run [любой асет]` в нашем случае для запуска webpack нужно ввести &#9646;`npm run build`
   
   ```json
   "scripst":{
@@ -65,30 +66,31 @@
   +       "build": "webpack --config webpack.config.js"
   }
   ```
+
 ## <a name="3_webp_i">3. Устанавливаем webpack</a>
 
 - &#9646;`npm install webpack webpack-cli --save-dev` - добавляем пакеты webpack
 - создаем папку `src`
 
-> `--save-dev` при в ключении этого режима зависимости появится в devDependencies файла `package.json` и так далее. Подробнее https://docs.npmjs.com/cli/install
+> `--save-dev` при в ключении этого режима, зависимости появится в devDependencies файла `package.json` и так далее. Подробнее <https://docs.npmjs.com/cli/install>
 
 - создаем `webpack.config.js` - нужен для наших настроек, на него будет ссылатся команда &#9646;`npm run build` в него вставляем:
 
      ```js
-    const path = require('path');
+  +   const path = require('path');
 
-    module.exports = {
-    mode: 'development',
-    entry: {
-        index:  './src/index.js',
-        another: './src/another-module.js'
-    },
-    output: {
-        filename: '[name].[contenthash].bundle.js',    
-        path: path.resolve(__dirname, 'dist'), 
-    },
-    };
-    ```
+  +   module.exports = {
+  +   mode: 'development',
+  +   entry: {
+  +       index:  './src/index.js',
+  +       another: './src/another-module.js'
+  +   },
+  +   output: {
+  +       filename: '[name].[contenthash].bundle.js',    
+  +       path: path.resolve(__dirname, 'dist'), 
+  +   },
+  +   };
+  ```
 
 ### Расшифровка
 
@@ -105,9 +107,10 @@
 - в файле `webpack.config.js` добавляем, это папка из которой будут братся данные для сервера
 
 ```js
-    devServer: {
-        contentBase: './dist'
-    }
+    mode: 'development',
++   devServer: {
++       contentBase: './dist'
++   },
 ```
 
 - в файл `package.json` добавляем асет `"start": "webpack-dev-server --open"`
@@ -118,19 +121,23 @@
 - дописываем в  `webpack.config.js`
 
 ```js
-    optimization: {
-        moduleIds: 'hashed',
-        runtimeChunk: 'single',
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                },
-            },
-        },
+    output: {
+         filename: '[name].[contenthash].bundle.js',    
+         path: path.resolve(__dirname, 'dist'), 
     },
++   optimization: {
++       moduleIds: 'hashed',
++       runtimeChunk: 'single',
++       splitChunks: {
++           cacheGroups: {
++               vendor: {
++                   test: /[\\/]node_modules[\\/]/,
++                   name: 'vendors',
++                   chunks: 'all',
++               },
++           },
++       },
++   },
 ```
 
 > хорошая практика использовать динамический импорт для вырезания кода подробнее https://webpack.js.org/guides/code-splitting/
@@ -167,10 +174,9 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 
 ### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin.
 
-## 7) по желанию bundle Analasis для проверок бандла
-подробнее:
-https://webpack.js.org/guides/code-splitting/
+## [777](7_ananas) 7. По желанию bundle Analasis для проверок бандла</a>
 
+- подробнее: <https://webpack.js.org/guides/code-splitting/>
 
 ## <a name="8_clean">8. Очистка `./dist` и создание html 
 
