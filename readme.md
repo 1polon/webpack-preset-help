@@ -174,7 +174,7 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 
 ### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin.
 
-## [777](7_ananas) 7. По желанию bundle Analasis для проверок бандла</a>
+## [777](#7_ananas) 7. По желанию bundle Analasis для проверок бандла</a>
 
 - подробнее: <https://webpack.js.org/guides/code-splitting/>
 
