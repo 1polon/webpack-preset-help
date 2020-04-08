@@ -13,7 +13,6 @@ module.exports = {
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             title: 'Hello',
-            template: './src/index.html',
         }),
         new WorkboxPlugin.GenerateSW({
             clientsClaim: true,

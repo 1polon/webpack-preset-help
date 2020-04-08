@@ -19,9 +19,14 @@
 5. [SplitChunksPlugin - вырезает куски кода в один файл](#5_split)
 6. [Prefetching - ленивая загрузка файлов](#6_pref)
 7. [Плагин проверки бандла bundle Analasis](#7_ananas)
-8. []()
-9. []()
-10. []() 
+8. [Очистка `.dist` и автоматическое создание html](#8_clean)
+9. [CSP - команда для дополнительной защиты от XSS](#9_csp)
+10. [three shaking и sideEffects - отрубание не исполняемого кода](#10_three) 
+11. [WebpackMerge - обьединяет наши конфиги в один](#11_merge) 
+12. [Workbox - для работы сайта без интернета](#12_work) 
+15. [Public path - будет добавлено в скором будующем :)](#15_pp) 
+- [Вывод](#vv) 
+- [Если кто-то разбирается]() 
 
 ## <a name="1_git_init"> 1. Инициализация git</a>
 
@@ -66,7 +71,7 @@
   +       "build": "webpack --config webpack.config.js"
   }
   ```
-
+  
 ## <a name="3_webp_i">3. Устанавливаем webpack</a>
 
 - &#9646;`npm install webpack webpack-cli --save-dev` - добавляем пакеты webpack
@@ -174,7 +179,7 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 
 ### Важно: для того чтобы изминения отображались в `./dist/index.html` можно использовать например HtmlWebpackPlugin.
 
-## [777](#7_ananas) 7. По желанию bundle Analasis для проверок бандла</a>
+## <a name="7_ananas"> 7. По желанию bundle Analasis для проверок бандла</a>
 
 - подробнее: <https://webpack.js.org/guides/code-splitting/>
 
@@ -184,6 +189,7 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 
 - &#9646;`npm i --save-dev html-webpack-plugin` -  HtmlWebpackPlugin - создает файл и вносит в него бандлы(скрипты) и другие зависимости html в `./dist`
 
+
 ```js
   const path = require('path');
 + const {CleanWebpackPlugin} = require('clean-webpack-plugin');
@@ -192,14 +198,12 @@ import(/* webpackPreload: true */ 'любое_имя.js');`
 module.exports = {
     mode: 'development',
     entry: {
-        polyfills: './src/polyfills.js',
         index: './src/index.js',
     },
 +    plugins: [
 +    new CleanWebpackPlugin(),
 +    new HtmlWebpackPlugin({
 +        title: "Оглавление сайта",
-+        template: "./src/index.html"
 +    })
     output: {
         filename: '[name].[contenthash].js',
@@ -220,10 +224,13 @@ module.exports = {
     },
 ```
 
+> `template: "./src/index.html"` это директория из которой будут взяты изминения. Остальные параметры которые не указаны будут добавлены автоматически. По умолчанию не минифицируется.
+
 ## <a name="9_csp">9. CSP - команда для дополнительной защиты от XSS</a>
 
 - блокирует всё что не прописано в `index.html`
-- добавляем CSP
+- подробнее: <https://webpack.js.org/guides/csp/>
+- пример включение в плагин автоматического заполнения html
 
 ```js
 new HtmlWebpackPlugin({
@@ -235,9 +242,9 @@ new HtmlWebpackPlugin({
 ```
 
 
-## <a name="10_three">10. three shaking и sideEffects - отрубание не исполняемого кода (пока что не пробовал, чуть позже займусь)
+## <a name="10_three">10. three shaking и sideEffects - отрубание не исполняемого кода (пока что не пробовал, чуть позже займусь) - в конечный код не добавлял
 
-```js
+```json
 + mode: 'development',
 + optimization: {
 +   usedExports: true, // добавляет возможность помечать скрипт пользователя в експорте
@@ -249,7 +256,8 @@ new HtmlWebpackPlugin({
 ```
 
 - `package.json`
-```js
+
+```json
 + {
 +   "name": "your-project",
 +   "sideEffects": false  // ОПАСНО откулючает распознавание сайд ефекта 
@@ -261,159 +269,161 @@ new HtmlWebpackPlugin({
 +   "**/*.scss",
 + ],
 ```
-> пометить функцию без сайд ефектов можно коментарием
+- пометить функцию без сайд ефектов можно коментарием
 `/*#__PURE__*/ double(55)`;
 
-### Важно: код обрезаются только в режиме `mode: 'production'`
+### Важно: код обрезаются только в режиме `mode: 'production'` в режиме `development` остается
 
 ## <a name="11_merge">11. WebpackMerge - обьединяет наши конфиги в один</a>
+
 - &#9646;`npm install --save-dev webpack-merge`
 - добавляем файлы 
-  - `webpack.common.js` - как главный файл импор везде
-  - `webpack.dev.js` - файл режима buidl(с коментариями и деревьями) и режима start (тоже самое только с сервером)
+  - `webpack.common.js` - как главный файл он експортируется в остальные
+
+    ```js
+    +    const path = require('path');
+    +    const {CleanWebpackPlugin} = require+('clean-webpack-plugin');
+    +    const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+    +    module.exports = {
+    +        mode: 'development',
+    +        entry: {
+    +            index: './src/index.js',
+    +        },
+    +        plugins: [
+    +            new CleanWebpackPlugin(),
+    +            new HtmlWebpackPlugin({
+    +                title: 'Hello',
+    +                template: './src/index.html',
+    +            }),
+    +            new WorkboxPlugin.GenerateSW({
+    +                clientsClaim: true,
+    +                skipWaiting: true,
+    +            }),
+    +        ],
+    +        output: {
+    +            filename: '[name].[contenthash].js',
+    +            path: path.resolve(__dirname, 'dist'),
+    +        },
+    +        optimization: {
+    +            moduleIds: 'hashed',
+    +            runtimeChunk: 'single',
+    +            splitChunks: {
+    +                cacheGroups: {
+    +                    vendor: {
+    +                        test: /[\\/]node_modules[\\/]/,
+    +                        name: 'vendors',
+    +                        chunks: 'all',
+    +                    },
+    +                },
+    +            },
+    +        },
+    +};
+    ```
+
+  - `webpack.dev.js` - файл режима buidl(с коментариями и деревьями)
+
+    ```js
+    + const merge = require('webpack-merge');
+    + const common = require('./webpack.common.js');
+
+    +  module.exports = merge(common, {
+    +      devServer: {
+    +          contentBase: './dist',
+    +      },
+    +      mode: 'development',
+    +      devtool: 'inline-source-map',
+    +  });
+    ```
+
   - `webpack.prod.js` - режим продакшена prod(минификация, обрезание деревьев)
 
-- асеты в `package.json`
+    ```js
+    +  const merge = require('webpack-merge');
+    +  const common = require('./webpack.common.js');
 
-```js
-    "build": "webpack --config webpack.dev.js",
-    "start": "webpack-dev-server --open --config webpack.dev.js",
-    "prod": "webpack --config webpack.prod.js"
-```
+    +  module.exports = merge(common, {
+    +      mode: 'production',
+    +      optimization: {
+    +          moduleIds: 'hashed',
+    +          runtimeChunk: 'single',
+    +          splitChunks: {
+    +              cacheGroups: {
+    +                  vendor: {
+    +                      test: /[\\/]node_modules[\\/]/,
+    +                      name: 'vendors',
+    +                      chunks: 'all',
+    +                  },
+    +              },
+    +          },
+    +      },
+    +  });
+    ```
+
+  - асеты в `package.json`
+
+   ```js
+    +   "build": "webpack --config webpack.dev.js",
+    +   "start": "webpack-dev-server --open --config webpack.dev.js",
+    +   "prod": "webpack --config webpack.prod.js"
+    ```
 
 - Добавим проверку режима разработки в `index.js`
 
+    ```js
+    +   if (process.env.NODE_ENV !== 'production') {
+    +   console.log('Looks like we are in development mode!');
+    +   } // проверка не находимся ли мы в режиме разработки
+    ```
+
+## <a name="12_work"> 12. Workbox - для работы сайта без интернета </a>
+
+- &#9646;`npm install workbox-webpack-plugin --save-dev`
+
+- `webpack.common.js` добавляем настройки
+
 ```js
-if (process.env.NODE_ENV !== 'production') {
-  console.log('Looks like we are in development mode!');
-} // проверка не находимся ли мы в режиме разработки
+const WorkboxPlugin = require('workbox-webpack-plugin');`
 ```
 
-## <a name="12_pol">12. Полифилы для отображения кода в старых браузерах ( глава нуждается в доработке )</a>
-- `npm install --save babel-polyfill` - установка полифила
-- npm install --save whatwg-fetch - без понятия что он делает
--добавляем в загрузку самым первым 
-webpack.common.js
-entry:{
-polyfills: './src/polyfills.js',
-}
--создаем для них отдельный скрипта
-polyfills.js
-import 'babel-polyfill';
-import 'whatwg-fetch';
-
--создаем в директории ./dist => index.html
--добавляем в index.html в директории ./dist
-<title>Getting Started</title>
-<script>
- const modernBrowser = (
-   'fetch' in window &&
-   'assign' in Object
- );
-
- if ( !modernBrowser ) {
-   const scriptElement = document.createElement('script');
-
-   scriptElement.async = false;
-   scriptElement.src = '/polyfills.bundle.js';
-   document.head.appendChild(scriptElement);
- }
-</script>
-
--этот скрипт для теста ========= фетча
-fetch('https://jsonplaceholder.typicode.com/users')
-+   .then(response => response.json())
-+   .then(json => {
-+     console.log('We retrieved some data! AND we\'re confident it will work on a variety of browser distributions.')
-+     console.log(json)
-+   })
-+   .catch(error => console.error('Something went wrong when fetching this data: ', error))
-
-
-
-13) онлайн сервер (симуляция настоящего)
-npm install http-server --save-dev
-
-- добавляем асет
-"oserver": "http-server dist"
-
-
-
-14) рабочая коробка или приложение которое работает без интернета
-npm install workbox-webpack-plugin --save-dev
-
-===============================ВАЖНО====================================
-в проде он не минифицирован нужно узнать как это сделать
-
--webpack.common.js добавляем настройки
-const WorkboxPlugin = require('workbox-webpack-plugin');
+```js
+plugins: [
 +     new WorkboxPlugin.GenerateSW({
-+       // these options encourage the ServiceWorkers to get in there fast
-+       // and not allow any straggling "old" SWs to hang around
 +       clientsClaim: true,
 +       skipWaiting: true,
 +     }),
+],
+```
 
--проверка работы index.js смотреть в консоли
-+ if ('serviceWorker' in navigator) {
-+   window.addEventListener('load', () => {
-+     navigator.serviceWorker.register('/service-worker.js').then(registration => {
-+       console.log('SW registered: ', registration);
-+     }).catch(registrationError => {
-+       console.log('SW registration failed: ', registrationError);
+- проверка работы плагина, добавить в `index.js`. Результаты смотреть в консоли
+
+```js
++   if ('serviceWorker' in navigator) {
++     window.addEventListener('load', () => {
++       navigator.serviceWorker.register('/service-worker.js').then(registration => {
++         console.log('SW registered: ', registration);
++       }).catch(registrationError => {
++         console.log('SW registration failed: ', registrationError);
++       });
 +     });
-+   });
-+ }
++   }
+```
 
+## <a name="15_pp">15. Public path - будет добавлено в скором будующем :)</a>
 
+## <a name="vv"> Вывод:</a>
 
-15) public path ============= ВАЖНО ============== узнать больше
+1. Пресет создает чанки автоматом добавляя хеши, html.
+2. конфиги разделены на несколько файлов.
+3. Скрипты разделены на используемые, вендорные и импортируемые.
+4. Также подключена система для офлайн работы сайта.
 
+---
 
+## <a name="help"> Далее то в чем я не разобрался:</a>
 
+- **HtmlWebpackPlugin** файл не минифицирутся в продакшене встроеными средствами если использовать `"template: ./src/index.html"`
 
+- **Work-box** во время выполнения на сервере локально сильно увеличивается в размере
 
-
-
-
-
-
-
-## Не знаю как настроить, если кто знает напишите
-
-* **HtmlWebpackPlugin** файл не минифицирутся в продакшене встроеными средствами если использовать "template: ./src/index.html"
-* **Work-box** во время выполнения на сервере локально сильно увеличивается в размере
-
-
-
-
-
-
-далее загружаем и настраиваем пакеты в зависимости от потребностей
-
-
-
-
-
-
-
-
-
-
-
-3) npm i --save-dev style-loader css-loader = утсанавливаем для создания css в нашей dist папке
-- добавляем модуль webpack.config.js
-    module: {
-        rules: [
-        {
-            test: /\.css$/, добавляет все css файлы из ./src
-            use: [
-            'style-loader', - лоадер 1
-            'css-loader', - лоадер 2
-            ],
-        },
-        ],
-    },
-
-- добавляем импорт в index.js
-    import './style.css';
+## если кто знает напишите
