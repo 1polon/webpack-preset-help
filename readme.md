@@ -68,7 +68,7 @@
 
 - добавляем команды(**асеты**) в файл `package.json`. Это позволяет использовать короткие команды в консоли например  &#9646;`npm run [любой асет]` в нашем случае для запуска webpack нужно ввести &#9646;`npm run build`
   
-  ```json
+  ```js
   "scripst":{
           "test": "echo \"Error: no test specified\" && exit 1",
   +       "build": "webpack --config webpack.config.js"
@@ -247,7 +247,7 @@ new HtmlWebpackPlugin({
 
 ## 10. three shaking и sideEffects - отрубание не исполняемого кода (пока что не пробовал, чуть позже займусь) - в конечный код не добавлял
 
-```json
+```js
 + mode: 'development',
 + optimization: {
 +   usedExports: true, // добавляет возможность помечать скрипт пользователя в експорте
@@ -260,7 +260,7 @@ new HtmlWebpackPlugin({
 
 - `package.json`
 
-```json
+```js
 + {
 +   "name": "your-project",
 +   "sideEffects": false  // ОПАСНО откулючает распознавание сайд ефекта
