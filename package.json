@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/1polon/portfolio.git"
+    "url": "git+https://github.com/1polon/webpack-preset-help.git"
   },
   "author": "Ponomarenko Viktor",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/1polon/portfolio/issues"
+    "url": "https://github.com/1polon/webpack-preset-help/issues"
   },
-  "homepage": "https://github.com/1polon/portfolio#readme",
+  "homepage": "https://github.com/1polon/webpack-preset-help#readme",
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
