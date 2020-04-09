@@ -1,4 +1,4 @@
-# webpack-preset-help | пресет вебпак
+# webpack-preset-help 
 
 Пономаренко Виктор
 
