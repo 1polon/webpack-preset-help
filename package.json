@@ -5,14 +5,13 @@
     "**/*.scss"
   ],
   "version": "0.0.1",
-  "description": "Here I post my works!",
+  "description": "Preset for npm/webpack",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
-    "prod": "webpack --config webpack.prod.js",
-    "oserver": "http-server dist"
+    "prod": "webpack --config webpack.prod.js"
   },
   "repository": {
     "type": "git",
