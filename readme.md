@@ -26,6 +26,7 @@
 10. [three shaking и sideEffects - отрубание не исполняемого кода](#10_three)
 11. [WebpackMerge - обьединяет наши конфиги в один](#11_merge)
 12. [Workbox - для работы сайта без интернета](#12_work)
+13. [Компиляция sass в css](#13_sass_css)
 
 - [Вывод](#vv)
 - [Если кто-то разбирается](#help)
@@ -412,6 +413,47 @@ plugins: [
 +     });
 +   }
 ```
+
+## <a name="13_sass_css">13. Компиляция sass в css</a>
+
+- Добавляем &#9646;`npm install sass-loader node-sass css-loader style-loader -D` лоадеры
+
+- подключаем лоадеры в `webpack.common.js`
+
+```js
+module:{
+  rules: [
+    ...,
+    {
+      test: /\.(sass|scss)$/,
+      use: [{
+        loader: 'style-loader'
+      }, {
+        loader: 'css-loader'
+      }, {
+        loader: 'sass-loader'
+      }]
+    }
+  ]
+}
+```
+
+- добавим стили в новый файл `base.scss` в директории src
+
+```css
+$primary-color: orange;
+body{
+$primyry-color;
+};
+```
+
+- и наконец-то добавляем импорт в `index.js`
+
+```js
+import '../style/app.scss';
+```
+
+>`-D` означает что мы устанавливаем пакет только для использования в разработке. Аналог `--save-dev`. В свою очередь `-S` установит как зависимость `--save`. `-g` - как глобальный пакет. `npm i lodash` - установит только данные.
 
 ## <a name="vv">Вывод</a>
 

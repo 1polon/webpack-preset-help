@@ -41,4 +41,3 @@ fetch('https://jsonplaceholder.typicode.com/users')
 +   })
 +   .catch(error => console.error('Something went wrong when fetching this data: ', error))
 
-

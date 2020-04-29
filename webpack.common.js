@@ -19,6 +19,20 @@ module.exports = {
             skipWaiting: true,
         }),
     ],
+    module: {
+        rules: [
+          {
+            test: /\.(scss|sass)$/,
+            use: [{
+                loader: 'style-loader'
+            }, {
+                loader: 'css-loader'
+            }, {
+                loader: 'sass-loader'
+            }]
+          }
+        ]
+      },
     output: {
         filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),

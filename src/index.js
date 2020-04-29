@@ -1,5 +1,5 @@
 import _ from 'lodash';
-
+import './base.scss'
 
 
 if (process.env.NODE_ENV !== 'production') {
